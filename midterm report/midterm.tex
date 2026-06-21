@@ -1,0 +1,337 @@
+\documentclass[11pt,a4paper]{article}
+
+% ------------------------------------------------
+% Packages
+% ------------------------------------------------
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{float}
+
+% ------------------------------------------------
+% Colors
+% ------------------------------------------------
+\definecolor{accent}{RGB}{25,60,130}
+
+% ------------------------------------------------
+% Hyperlinks
+% ------------------------------------------------
+\hypersetup{
+    colorlinks=true,
+    linkcolor=accent,
+    citecolor=accent,
+    urlcolor=accent
+}
+
+% ------------------------------------------------
+% Section Styling
+% ------------------------------------------------
+\titleformat{\section}
+{\Large\bfseries\color{accent}}
+{\thesection}{1em}{}
+
+\titleformat{\subsection}
+{\large\bfseries}
+{\thesubsection}{1em}{}
+
+% ------------------------------------------------
+% Header/Footer
+% ------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Tokens to Translations}
+\fancyhead[R]{Midterm Report}
+\fancyfoot[C]{\thepage}
+
+\setlength{\parskip}{6pt}
+\setlength{\parindent}{0pt}
+
+% ------------------------------------------------
+% Document
+% ------------------------------------------------
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Title Page
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{titlepage}
+
+\centering
+
+\vspace*{2cm}
+
+{\Huge\bfseries Tokens to Translations}
+
+\vspace{0.5cm}
+
+{\Large Summer of Code 2026}
+
+\vspace{1.5cm}
+
+{\LARGE Midterm Report}
+
+\vfill
+
+\begin{tabular}{rl}
+\textbf{Name:} & Samyajyoti Biswas \\
+\textbf{Department:} & Computer Science and Engineering \\
+\textbf{Institute:} & IIT Bombay \\
+\textbf{Mentors:} &
+\begin{tabular}[t]{l}
+Tushar Yadav \\
+Keshav Singhal
+\end{tabular} \\
+\textbf{Date:} & \today
+\end{tabular}
+
+\vfill
+
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+
+The objective of this project is to understand how neural networks learn representations of language and how these representations can eventually be used to perform translation tasks. The first phase of the project therefore focuses on language modeling, optimization, and neural network fundamentals.This report summarizes the work completed during the first three weeks of the project. Rather than treating neural networks and translation systems as black boxes, the project focuses on building the fundamental components from scratch, beginning with automatic differentiation and neural networks, progressing through character-level language models and multi-layer perceptrons, and finally exploring modern architectural improvements such as Batch Normalization, Kaiming Initialization, and hierarchical context aggregation inspired by WaveNet.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Week 1: Neural Networks and Character-Level Language Modeling}
+
+\subsection{Automatic Differentiation and Neural Networks}
+
+The project began with an implementation of automatic differentiation inspired by the Micrograd framework.
+
+A custom \texttt{Value} class was implemented to represent scalar values and maintain computational graphs. Arithmetic operations were overloaded to construct computation graphs automatically, allowing gradients to be propagated backward through the graph.
+
+The following concepts were explored:
+
+\begin{itemize}
+    \item Numerical differentiation
+    \item Computational graphs
+    \item Chain rule
+    \item Backpropagation
+    \item Gradient descent
+    \item Multi-Layer Perceptrons (MLPs)
+\end{itemize}
+
+A neural network consisting of neurons, layers, and a complete MLP was implemented from scratch. Training was performed using gradient descent and manually computed gradients obtained through automatic differentiation.
+
+This phase provided a detailed understanding of how modern deep learning frameworks internally compute gradients and update parameters.
+
+\subsection{Character-Level Language Modeling}
+
+The next stage involved implementing a character-level language model using a dataset of names.
+
+Initially, a bigram language model was constructed by counting occurrences of consecutive characters. These counts were converted into probability distributions and used to generate new names through probabilistic sampling.
+
+The model learned distributions of the form
+
+\[
+P(c_t \mid c_{t-1})
+\]
+
+where the next character depends only on the previous character.
+
+Key concepts explored:
+
+\begin{itemize}
+    \item Character tokenization
+    \item Bigram statistics
+    \item Probability matrices
+    \item Sampling from learned distributions
+    \item Negative Log-Likelihood (NLL)
+    \item Model smoothing
+\end{itemize}
+
+\subsection{Neural Bigram Model}
+
+The statistical bigram model was then reformulated as a neural network.
+
+Characters were represented using one-hot encodings and passed through a trainable weight matrix. The resulting logits were converted into probabilities using a softmax layer and optimized using cross-entropy loss.
+
+This experiment demonstrated how neural networks can learn probability distributions directly from data rather than relying on explicit counting procedures.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Week 2: Multi-Layer Perceptron Language Models}
+
+\subsection{Context-Based Prediction}
+
+The second phase of the project focused on extending the bigram model to incorporate larger contexts.
+
+Instead of predicting the next character from only the immediately preceding character, the model was trained using multiple previous characters as context.
+
+The dataset was divided into:
+
+\begin{itemize}
+    \item Training Set
+    \item Development Set
+    \item Test Set
+\end{itemize}
+
+A context window was used to predict the next character in a sequence.
+
+\subsection{Embedding Layers}
+
+One-hot encoded inputs become increasingly inefficient as vocabulary size grows.
+
+To address this limitation, embedding vectors were introduced.
+
+Each character was mapped to a trainable dense vector representation, allowing the model to learn relationships between characters in a continuous vector space.
+
+This stage introduced:
+
+\begin{itemize}
+    \item Embedding lookups
+    \item Dense representations
+    \item Context concatenation
+    \item Hidden layer representations
+\end{itemize}
+
+\subsection{Multi-Layer Perceptron Language Model}
+
+A Multi-Layer Perceptron was trained to predict the next character given a context window.
+
+The architecture consisted of:
+
+\begin{itemize}
+    \item Embedding Layer
+    \item Hidden Layer with non-linearity
+    \item Output Layer producing logits
+\end{itemize}
+
+Several hyperparameters were investigated, including:
+
+\begin{itemize}
+    \item Context size
+    \item Hidden layer width
+    \item Learning rate
+    \item Embedding dimension
+\end{itemize}
+
+The best-performing configuration achieved a validation loss of approximately 2.14.
+
+This phase was inspired by the ideas presented in Bengio et al. (2003), \emph{A Neural Probabilistic Language Model}, and demonstrated how distributed representations can be used to capture structure in language.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\subsection{Batch Normalization}
+
+As network depth increased, training stability became increasingly important.
+
+Batch Normalization was implemented and studied in detail.
+
+Experiments focused on:
+
+\begin{itemize}
+    \item Activation distributions
+    \item Gradient flow
+    \item Training stability
+    \item Optimization behavior
+\end{itemize}
+
+The effect of BatchNorm on optimization was analyzed by monitoring activation statistics throughout the network.
+
+\subsection{Kaiming Initialization}
+
+Weight initialization strategies were investigated to improve signal propagation through deep networks.
+
+In particular, Kaiming Initialization was implemented and compared against naive random initialization.
+
+Experiments demonstrated that initialization has a substantial effect on:
+
+\begin{itemize}
+    \item Activation magnitudes
+    \item Gradient propagation
+    \item Training convergence
+\end{itemize}
+
+\subsection{Implementing Layers from Scratch}
+
+To better understand modern deep learning frameworks, custom implementations of neural network layers were developed.
+
+These included:
+
+\begin{itemize}
+    \item Linear Layers
+    \item Batch Normalization Layers
+    \item Activation Functions
+\end{itemize}
+
+The objective was to create abstractions similar to those provided by the PyTorch API while maintaining full control over the underlying computations.
+\section{Week 3: Deep Network Optimization and Architectural Improvements}
+
+\subsection{WaveNet-Inspired Architectures}
+
+The final component completed during this period involved exploring hierarchical context aggregation strategies inspired by WaveNet.
+
+A key observation was that previous MLP models compressed the entire context window in a single step. To address this limitation, a hierarchical architecture was introduced using custom layers such as:
+
+\begin{itemize}
+    \item FlattenConsecutive
+    \item Hierarchical feature aggregation
+    \item Progressive context compression
+\end{itemize}
+
+Rather than combining all contextual information simultaneously, information was compressed gradually across multiple stages.
+
+This allowed larger context windows to be processed more efficiently while maintaining parameter efficiency.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Key Outcomes}
+
+By the end of the first three weeks, the following components had been successfully implemented:
+
+\begin{itemize}
+    \item Automatic differentiation engine
+    \item Backpropagation
+    \item Multi-Layer Perceptrons
+    \item Statistical bigram language models
+    \item Neural bigram language models
+    \item Embedding layers
+    \item Context-based language models
+    \item Batch Normalization
+    \item Kaiming Initialization
+    \item Custom neural network layers
+    \item WaveNet-inspired hierarchical architectures
+\end{itemize}
+
+These implementations established the mathematical and computational foundations required for studying more advanced sequence models and eventually modern machine translation architectures.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusion}
+
+The first three weeks of the project focused on developing a strong foundation in neural networks and language modeling through direct implementation. Beginning with automatic differentiation and progressing through neural language models, optimization techniques, and hierarchical architectures, the project has provided practical insight into how modern language models are constructed and trained. These foundations will serve as the basis for studying attention-based models and machine translation systems in the subsequent phases of the project.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{References}
+\addcontentsline{toc}{section}{References}
+
+\begin{enumerate}
+    \item Karpathy, A. \emph{Neural Networks: Zero to Hero}.
+    \item Bengio, Y. et al. \emph{A Neural Probabilistic Language Model}, 2003.
+    \item WaveNet: A Generative Model for Raw Audio.
+    \item PyTorch Documentation.
+\end{enumerate}
+
+\end{document}
