@@ -16,7 +16,7 @@ class BPETokenizer:
         #self.merge_ranks={}
 
     def build_initial_vocab(self,corpus):
-        vocab=sorted(list(set("".join(corpus))))
+        vocab=sorted(list(set("".join(corpus)+" ")))
         for ch in vocab:
             self.stoi[ch]=self.next_id
             self.itos[self.next_id]=ch
