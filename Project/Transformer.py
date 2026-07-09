@@ -13,8 +13,8 @@ class PositionalEncoding(nn.Module):
     def forward(self,x):
         T=x.shape[1]
         if T>self.max_len:
-            self.pe=self.generate_pe(max(T,self.max_len))
-            self.max_len=T
+            self.pe=self.generate_pe(max(T,2*self.max_len))
+            self.max_len=max(T,2*self.max_len)
 
         return x+self.pe[:T,:]
     
@@ -118,8 +118,8 @@ class DecoderBlock(nn.Module):
     def forward(self,d,e):
         T=d.shape[-2]
         if T>self.max_len:
-            self.mask=self.create_mask(max(T,self.max_len))
-            self.max_len=T
+            self.mask=self.create_mask(max(T,2*self.max_len))
+            self.max_len=max(T,2*self.max_len)
         out=self.mskd_sfatn(d,d,d,self.mask[:T,:T])
         d=self.norm1(d+out)
         out=self.cros_atn(d,e,e)
@@ -171,7 +171,7 @@ class Transformer(nn.Module):
     def generate(self,src,sos_id,eos_id,sampler):
         gen_lim=max(self.max_len,5*src.shape[1])
         tgt=torch.tensor([[sos_id]])
-        while len(tgt)< gen_lim and tgt[-1]!=eos_id:
+        while tgt.shape[1]< gen_lim and tgt[0,-1]!=eos_id:
             logit=self.forward(src,tgt)[:,-1,:]
             next_token=sampler.sample(logit)
             tgt=torch.cat([tgt,next_token.unsqueeze(0)],dim=1)
