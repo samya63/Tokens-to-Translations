@@ -72,6 +72,9 @@ class BPETokenizer:
         self.build_initial_vocab(corpus)
         ccorpus=self.convert_corpus(corpus)
 
+        #To track progress
+        print(f"Starting training. Target vocab size: {self.vocab_size}")
+
         while self.next_id<self.vocab_size:
             d=self.get_pair_frequencies(ccorpus)
             if len(d)==0:
@@ -80,6 +83,11 @@ class BPETokenizer:
             self.merge_pair(ccorpus,pair)
             self.add_new_token(pair)
             self.merges.append(pair)
+            #to track progress
+            if self.next_id % 100 == 0:  # Prints every 100 merges
+                print(f"Progress: {self.next_id}/{self.vocab_size} tokens learned.")
+        
+        print("Training complete!")
 
     def encode(self,text):
         dc=[list(text)]
